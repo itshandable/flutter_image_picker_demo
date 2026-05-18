@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -44,7 +45,7 @@ class _ImagePickerHomePageState extends State<ImagePickerHomePage> {
   }
 
   Future<void> _recoverLostImage() async {
-    if (!Platform.isAndroid) {
+    if (kIsWeb || !Platform.isAndroid) {
       return;
     }
 
@@ -191,8 +192,13 @@ class _ImagePreview extends StatelessWidget {
       );
     }
 
-    return Image.file(
-      File(image!.path),
+    final XFile selectedImage = image!;
+    final ImageProvider imageProvider = kIsWeb
+        ? NetworkImage(selectedImage.path)
+        : FileImage(File(selectedImage.path));
+
+    return Image(
+      image: imageProvider,
       fit: BoxFit.contain,
       width: double.infinity,
       errorBuilder: (context, error, stackTrace) {
